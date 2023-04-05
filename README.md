@@ -1,2 +1,2 @@
-# tesorflow_image_classification
+# CNN training for image classification
  
