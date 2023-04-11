@@ -4,7 +4,7 @@ from keras.layers.normalization.batch_normalization import BatchNormalization
 from tensorflow_addons.layers import AdaptiveAveragePooling2D
 
 
-def vgg_16(input_shape=(28, 28, 1)):
+def vgg_16(input_shape=(28, 28, 1), categories=10):
     model = Sequential([
         Conv2D(32, 3, activation='relu', padding='same', input_shape=input_shape),
         Conv2D(64, 3, activation='relu', padding='same'),
@@ -30,7 +30,7 @@ def vgg_16(input_shape=(28, 28, 1)):
 
         AdaptiveAveragePooling2D((1,1)),
         Flatten(),
-        Dense(10, activation='softmax'),
+        Dense(categories, activation='softmax'),
     ])
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model

@@ -52,19 +52,24 @@ class Trainer():
         pass
 
     def _evaluate_keras_model(self, net, x, y):
+        print('evaluating...')
         (loss, acc) = net.evaluate(x, y)
-        print(f'loss: {loss}')
-        print(f' acc: {acc}')
+        print('loss: %.4f' % loss)
+        print(' acc: %.4f' % acc)
 
-    def _load(self, dataset):
-        print('loading: '+dataset)
-        match dataset:
+    def _load(self, dataset: str):
+        print('loading: ' + dataset)
+        match dataset.lower():
             case 'mnist':
                 (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
                 return (x_train.reshape(-1, 28, 28, 1)/255, tf.one_hot(y_train, 10)), (x_test.reshape(-1, 28, 28, 1)/255, tf.one_hot(y_test, 10))
             case 'fashion_mnist':
-                (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+                (x_train, y_train), (x_test, y_test) = datasets.fashion_mnist.load_data()
                 return (x_train.reshape(-1, 28, 28, 1)/255, tf.one_hot(y_train, 10)), (x_test.reshape(-1, 28, 28, 1)/255, tf.one_hot(y_test, 10))
             case 'cifar10':
                 (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
-                return (x_train.reshape(-1, 28, 28, 3)/255, tf.one_hot(y_train, 10)), (x_test.reshape(-1, 28, 28, 3)/255, tf.one_hot(y_test, 10))
+                return (x_train.reshape(-1, 32, 32, 3)/255, tf.one_hot(y_train.reshape(-1), 10)), (x_test.reshape(-1, 32, 32, 3)/255, tf.one_hot(y_test.reshape(-1), 10))
+            case 'cifar100':
+                (x_train, y_train), (x_test, y_test) = datasets.cifar100.load_data()
+                return (x_train.reshape(-1, 32, 32, 3)/255, tf.one_hot(y_train.reshape(-1), 100)), (x_test.reshape(-1, 32, 32, 3)/255, tf.one_hot(y_test.reshape(-1), 100))
+            

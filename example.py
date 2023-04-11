@@ -15,9 +15,11 @@ import numpy as np
 # print(x_train.dtype)
 
 
-model = vgg_16()
-print(model.summary())
+model = vgg_16((32,32,3), 10)
+# model = vgg_16((28,28,1), 10)
 trainer = Trainer()
-trainer.train(model, 'mnist', epochs=1)
+
+# trainer.train(model, 'fashion_mnist', epochs=5)
+trainer.train(model, 'cifar10', epochs=5)
 trainer.evaluate()
 
