@@ -1,12 +1,17 @@
 from tensorflow.keras import datasets
 from torch.nn import Module
 from tensorflow.python.keras import Model
+from tqdm import trange
+from torch.optim import Adam
+import torch
 
+import torch.nn.functional as F
 import tensorflow as tf
+import numpy as np
 
 
 class Trainer():
-    def __inti__(self, net=None, dataset=None):
+    def __init__(self, net=None, dataset=None):
         self.net = None
         self.x_train, self.y_train, self.x_test, self.y_test = None, None, None, None
         if net:
@@ -43,13 +48,49 @@ class Trainer():
             self._evaluate_keras_model(self.net, x, y)
 
     def _train_torch_model(self, net, x_train, y_train, batch_size, epochs):
-        pass
+        net.train()
+        opt = Adam(net.parameters(), 1e-3)
+        x_train = torch.from_numpy(np.array(x_train, dtype=np.float32).transpose(0,3,1,2))
+        y_train = torch.from_numpy(np.array(y_train, dtype=np.float32))
+
+        for e in range(epochs):
+            permutation = np.random.permutation(x_train.shape[0])
+            x_train = x_train[permutation]
+            y_train = y_train[permutation]
+
+            for i in trange(0, x_train.shape[0], batch_size):
+
+                images = x_train[i:i+batch_size]
+                labels = y_train[i:i+batch_size]
+
+                output = net(images)
+
+                loss = F.cross_entropy(output, labels)
+                opt.zero_grad()
+                loss.backward()
+                opt.step()
 
     def _train_keras_model(self, net, x_train, y_train, batch_size, epochs):
         history = net.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
     
     def _evaluate_torch_model(self, net, x, y):
-        pass
+        print('evaluating...')
+        net.eval()
+        x = torch.from_numpy(np.array(x, dtype=np.float32).transpose(0,3,1,2))
+        y = torch.from_numpy(np.array(y, dtype=np.float32))
+        correct = 0
+        list = []
+        for i in trange(x.shape[0]):
+            image = x[i].reshape(1, *x[i].shape)
+            label = torch.argmax(y[i])
+
+            output = net(image)
+            if torch.argmax(output) == label:
+                correct += 1
+            else:
+                list.append(i)
+
+        print('test accuracy: %.4f' % (correct/y.shape[0]))
 
     def _evaluate_keras_model(self, net, x, y):
         print('evaluating...')
